@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de gráficos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center mb-3">Gráfico Coluna simples</h2>
+        <div class="mb-3">
+            <!-- <label for="chartTitle" class="form-label">Título do Gráfico:</label> -->
+            <input type="text" id="chartTitle" class="form-control" placeholder="Digite o título do gráfico">
+        </div>
+        <button id="addField" class="btn btn-primary mb-3">+ Adicionar Coluna</button>
+        <div id="fieldsContainer" class="mb-3"></div>
+        <div class="width-100 mx-auto bg-light">
+            <canvas id="barChart" width="400" height="200" class="mt-4" ></canvas>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+
+        function updateChart() {
+            const names = Array.from(document.querySelectorAll('.name-field')).map(input => input.value);
+            const quantities = Array.from(document.querySelectorAll('.quantity-field')).map(input => parseFloat(input.value) || 0);
+            const colors = Array.from(document.querySelectorAll('.color-field')).map(input => input.value || 'rgba(75, 192, 192, 0.2)');
+            const chartTitle = document.getElementById('chartTitle').value;
+
+            const ctx = document.getElementById('barChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: names,
+                    datasets: [{
+                        label: 'Values',
+                        data: quantities,
+                        backgroundColor: "#ffffff",
+                        borderColor: colors.map(color => color.replace(/0\.2\)$/, '1)')),
+                        borderWidth: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: chartTitle
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('addField').addEventListener('click', () => {
+            const container = document.getElementById('fieldsContainer');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.classList.add('mb-2', 'input-group');
+
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.placeholder = 'Name';
+            nameInput.classList.add('form-control', 'name-field');
+            nameInput.addEventListener('input', updateChart);
+
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.placeholder = 'Quantity';
+            quantityInput.classList.add('form-control', 'quantity-field');
+            quantityInput.addEventListener('input', updateChart);
+
+            const colorInput = document.createElement('input');
+            colorInput.type = 'color';
+            colorInput.classList.add('form-control', 'color-field');
+            colorInput.addEventListener('input', updateChart);
+
+            fieldDiv.appendChild(nameInput);
+            fieldDiv.appendChild(quantityInput);
+            fieldDiv.appendChild(colorInput);
+            container.appendChild(fieldDiv);
+
+            updateChart();
+        });
+
+        document.getElementById('chartTitle').addEventListener('input', updateChart);
+    </script>
+</body>
+</html>
