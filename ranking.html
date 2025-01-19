@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Rank Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 id="app-title" class="text-center">Dynamic Rank Generator</h1>
+
+        <div class="my-4">
+            <label for="title-input" class="form-label">Set Title:</label>
+            <div class="input-group">
+                <input type="text" id="title-input" class="form-control" placeholder="Enter a title">
+                <button class="btn btn-primary" onclick="updateTitle()">Update Title</button>
+            </div>
+        </div>
+
+        <div id="input-section">
+            <button class="btn btn-success mb-3" onclick="addInputFields()">+ Add Entry</button>
+        </div>
+
+        <div id="rank-list" class="mt-4"></div>
+
+        <button class="btn btn-primary mt-3" onclick="generateRank()">Generate Rank</button>
+    </div>
+
+    <script>
+        function updateTitle() {
+            const titleInput = document.getElementById('title-input').value;
+            document.getElementById('app-title').innerText = titleInput || 'Dynamic Rank Generator';
+        }
+
+        function addInputFields() {
+            const inputSection = document.getElementById('input-section');
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group mb-2';
+
+            inputGroup.innerHTML = `
+                <input type="text" class="form-control name-input me-2" placeholder="Enter name">
+                <input type="text" class="form-control positions-input me-2" placeholder="Enter positions (e.g., 1,2,3)">
+                <button class="btn btn-danger" onclick="deleteField(this)">Delete</button>
+            `;
+
+            inputSection.appendChild(inputGroup);
+        }
+
+        function deleteField(button) {
+            button.parentElement.remove();
+        }
+
+        function generateRank() {
+            const names = document.querySelectorAll('.name-input');
+            const positions = document.querySelectorAll('.positions-input');
+            const rankList = document.getElementById('rank-list');
+
+            const data = [];
+
+            names.forEach((nameField, index) => {
+                const name = nameField.value.trim();
+                const positionsInput = positions[index].value.trim();
+
+                if (!name || !positionsInput) return;
+
+                const positionsArray = positionsInput.split(',').map(Number).filter(num => !isNaN(num));
+                const n = positionsArray.length;
+                let points = 0;
+
+                positionsArray.forEach(pos => {
+                    if (pos > 0 && pos <= n) {
+                        points += n - (pos - 1);
+                    }
+                });
+
+                data.push({ name, points });
+            });
+
+            // Sort data by points descending
+            data.sort((a, b) => b.points - a.points);
+
+            // Render rank list
+            rankList.innerHTML = '<h3 class="text-center">Ranking:</h3>';
+            data.forEach((entry, index) => {
+                const rankItem = document.createElement('div');
+                rankItem.className = 'rank-item text-center';
+                rankItem.innerText = `${index + 1}. ${entry.name} - ${entry.points} points`;
+                rankList.appendChild(rankItem);
+            });
+
+            if (data.length === 0) {
+                rankList.innerHTML = '<p class="text-center text-muted">No valid entries to rank.</p>';
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

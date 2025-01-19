@@ -20,6 +20,15 @@
             <input type="text" id="chartTitle" class="form-control" placeholder="Digite o título do gráfico">
         </div>
 
+        <div class="mb-2 input-group">
+            <input type="text" id="metrica1_name" placeholder="Metrica 1" class="form-control quantity-field">
+            <input type="color" id="metrica1_color" class="form-control color-field">
+        </div>
+
+        <div class="mb-2 input-group">
+            <input type="text" id="metrica2_name" placeholder="Metrica 2" class="form-control quantity-field">
+            <input type="color" id="metrica2_color" class="form-control color-field">
+        </div>
 
         <button id="addField" class="btn btn-primary mb-3">+ Adicionar Coluna</button>
         <div id="fieldsContainer" class="mb-3"></div>
@@ -37,6 +46,8 @@
             const colors = Array.from(document.querySelectorAll('.color-field')).map(input => input.value || 'rgba(75, 192, 192, 0.2)');
             const chartTitle = document.getElementById('chartTitle').value;
 
+            const coluna1 = document.getElementById('metrica1_name').value;
+            const coluna2 = document.getElementById('metrica2_name').value;
             const ctx = document.getElementById('barChart').getContext('2d');
 
             if (chart) {
@@ -46,20 +57,23 @@
             chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: names,
-                    datasets: [{
-                        label: 'Values',
-                        data: quantities,
-                        backgroundColor: "#ffffff",
-                        borderColor: colors.map(color => color.replace(/0\.2\)$/, '1)')),
-                        borderWidth: 5
-                    }]
+                    // labels: [coluna1, coluna2],
+                    datasets: names.map((name, i) => {
+
+                        return {
+                            label: [coluna1, coluna2],
+                            data: [quantities[2 * i], quantities[2 * i + 1]],
+                            backgroundColor: "#ffffff",
+                            borderColor: colors.map(color => color.replace(/0\.2\)$/, '1)')),
+                            borderWidth: 5
+                        }
+                    })
                 },
                 options: {
                     responsive: true,
                     plugins: {
                         legend: {
-                            display: false
+                            display: true
                         },
                         title: {
                             display: true,
@@ -76,6 +90,8 @@
         }
 
         document.getElementById('addField').addEventListener('click', () => {
+            const coluna1 = document.getElementById('metrica1_name').value;
+            const coluna2 = document.getElementById('metrica2_name').value;
             const container = document.getElementById('fieldsContainer');
             const fieldDiv = document.createElement('div');
             fieldDiv.classList.add('mb-2', 'input-group');
@@ -84,22 +100,24 @@
             nameInput.type = 'text';
             nameInput.placeholder = 'Name';
             nameInput.classList.add('form-control', 'name-field');
-            nameInput.addEventListener('input', updateChart);
+            nameInput.addEventListener('change', updateChart);
 
-            const quantityInput = document.createElement('input');
-            quantityInput.type = 'number';
-            quantityInput.placeholder = 'Quantity';
-            quantityInput.classList.add('form-control', 'quantity-field');
-            quantityInput.addEventListener('input', updateChart);
+            const quantityInput1 = document.createElement('input');
+            quantityInput1.type = 'number';
+            quantityInput1.placeholder = coluna1;
+            quantityInput1.classList.add('form-control', 'quantity-field');
+            quantityInput1.addEventListener('change', updateChart);
 
-            const colorInput = document.createElement('input');
-            colorInput.type = 'color';
-            colorInput.classList.add('form-control', 'color-field');
-            colorInput.addEventListener('input', updateChart);
+            const quantityInput2 = document.createElement('input');
+            quantityInput2.type = 'number';
+            quantityInput2.placeholder = coluna2;
+            quantityInput2.classList.add('form-control', 'quantity-field');
+            quantityInput2.addEventListener('input', updateChart);
+
 
             fieldDiv.appendChild(nameInput);
-            fieldDiv.appendChild(quantityInput);
-            fieldDiv.appendChild(colorInput);
+            fieldDiv.appendChild(quantityInput1);
+            fieldDiv.appendChild(quantityInput2);
             container.appendChild(fieldDiv);
 
             updateChart();

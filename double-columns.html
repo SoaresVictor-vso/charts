@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Gráficos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center mb-3">Gerador de Gráfico de Barras</h2>
+
+        <!-- Chart Title -->
+        <div class="mb-3">
+            <input type="text" id="chartTitle" class="form-control" placeholder="Digite o título do gráfico">
+        </div>
+
+        <!-- Metric Names -->
+        <div class="mb-3 input-group">
+            <input type="text" id="metric1Name" class="form-control" placeholder="Nome da Métrica 1" value="">
+            <input type="color" class="form-control color-field">
+        </div>
+        <div class="mb-3 input-group">
+            <input type="text" id="metric2Name" class="form-control" placeholder="Nome da Métrica 2" value="">
+            <input type="color" class="form-control color-field">
+        </div>
+
+        <!-- Dynamic Input Fields -->
+        <div id="fieldsContainer" class="mb-3">
+        </div>
+
+        <!-- Add Category Button -->
+        <button id="addField" class="btn btn-primary mb-3">+ Adicionar Categoria</button>
+
+        <!-- Chart -->
+        <div class="mx-auto bg-light">
+            <canvas id="barChart" width="400" height="200" class="mt-4"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+
+        function updateChart() {
+            const categories = Array.from(document.querySelectorAll('.category-field')).map(input => input.value);
+            const metric1Values = Array.from(document.querySelectorAll('.metric1-field')).map(input => parseFloat(input.value) || 0);
+            const metric2Values = Array.from(document.querySelectorAll('.metric2-field')).map(input => parseFloat(input.value) || 0);
+            const chartTitle = document.getElementById('chartTitle').value;
+            const metric1Name = document.getElementById('metric1Name').value || "Métrica 1";
+            const metric2Name = document.getElementById('metric2Name').value || "Métrica 2";
+            const colors = Array.from(document.querySelectorAll('.color-field')).map(input => input.value || 'rgba(75, 192, 192, 0.2)');
+
+            const ctx = document.getElementById('barChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [
+                        {
+                            label: metric1Name,
+                            data: metric1Values,
+                            backgroundColor: '#ffffff',
+                            borderColor: colors[0],
+                            borderWidth: 5
+                        },
+                        {
+                            label: metric2Name,
+                            data: metric2Values,
+                            backgroundColor: '#ffffff',
+                            borderColor: colors[1],
+                            borderWidth: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        title: {
+                            display: true,
+                            text: chartTitle
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('addField').addEventListener('click', () => {
+            const container = document.getElementById('fieldsContainer');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.classList.add('mb-2', 'input-group');
+
+            const categoryInput = document.createElement('input');
+            categoryInput.type = 'text';
+            categoryInput.placeholder = 'Categoria';
+            categoryInput.classList.add('form-control', 'category-field');
+            categoryInput.addEventListener('input', updateChart);
+
+            const metric1Input = document.createElement('input');
+            metric1Input.type = 'number';
+            metric1Input.placeholder = document.getElementById('metric1Name').value || 'Métrica 1';
+            metric1Input.classList.add('form-control', 'metric1-field');
+            metric1Input.addEventListener('input', updateChart);
+
+            const metric2Input = document.createElement('input');
+            metric2Input.type = 'number';
+            metric2Input.placeholder = document.getElementById('metric2Name').value || 'Métrica 2';
+            metric2Input.classList.add('form-control', 'metric2-field');
+            metric2Input.addEventListener('input', updateChart);
+
+            fieldDiv.appendChild(categoryInput);
+            fieldDiv.appendChild(metric1Input);
+            fieldDiv.appendChild(metric2Input);
+            container.appendChild(fieldDiv);
+
+            updateChart();
+        });
+
+        // Update chart whenever metric names or title changes
+        document.getElementById('chartTitle').addEventListener('input', updateChart);
+        document.getElementById('metric1Name').addEventListener('input', () => {
+            document.querySelectorAll('.metric1-field').forEach(input => {
+                input.placeholder = document.getElementById('metric1Name').value || "Métrica 1";
+            });
+            updateChart();
+        });
+        document.getElementById('metric2Name').addEventListener('input', () => {
+            document.querySelectorAll('.metric2-field').forEach(input => {
+                input.placeholder = document.getElementById('metric2Name').value || "Métrica 2";
+            });
+            updateChart();
+        });
+    </script>
+</body>
+
+</html>
